@@ -27,46 +27,6 @@ func (q *Queries) CreateRefreshToken(ctx context.Context, arg CreateRefreshToken
 	return err
 }
 
-const createTenant = `-- name: CreateTenant :one
-INSERT INTO tenants (name, slug)
-VALUES ($1, $2)
-RETURNING id, name, slug, created_at, updated_at
-`
-
-type CreateTenantParams struct {
-	Name string `json:"name"`
-	Slug string `json:"slug"`
-}
-
-func (q *Queries) CreateTenant(ctx context.Context, arg CreateTenantParams) (Tenant, error) {
-	row := q.db.QueryRow(ctx, createTenant, arg.Name, arg.Slug)
-	var i Tenant
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Slug,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-	)
-	return i, err
-}
-
-const createTenantMember = `-- name: CreateTenantMember :exec
-INSERT INTO tenant_members (tenant_id, user_id, role)
-VALUES ($1, $2, $3)
-`
-
-type CreateTenantMemberParams struct {
-	TenantID pgtype.UUID `json:"tenant_id"`
-	UserID   pgtype.UUID `json:"user_id"`
-	Role     string      `json:"role"`
-}
-
-func (q *Queries) CreateTenantMember(ctx context.Context, arg CreateTenantMemberParams) error {
-	_, err := q.db.Exec(ctx, createTenantMember, arg.TenantID, arg.UserID, arg.Role)
-	return err
-}
-
 const deleteRefreshToken = `-- name: DeleteRefreshToken :exec
 DELETE FROM refresh_tokens WHERE id = $1
 `
@@ -97,23 +57,6 @@ func (q *Queries) GetRefreshTokenByHash(ctx context.Context, tokenHash string) (
 		&i.UserID,
 		&i.TokenHash,
 		&i.ExpiresAt,
-		&i.CreatedAt,
-	)
-	return i, err
-}
-
-const getTenantMemberByUserID = `-- name: GetTenantMemberByUserID :one
-SELECT id, tenant_id, user_id, role, created_at FROM tenant_members WHERE user_id = $1 LIMIT 1
-`
-
-func (q *Queries) GetTenantMemberByUserID(ctx context.Context, userID pgtype.UUID) (TenantMember, error) {
-	row := q.db.QueryRow(ctx, getTenantMemberByUserID, userID)
-	var i TenantMember
-	err := row.Scan(
-		&i.ID,
-		&i.TenantID,
-		&i.UserID,
-		&i.Role,
 		&i.CreatedAt,
 	)
 	return i, err
