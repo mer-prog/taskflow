@@ -14,4 +14,7 @@ var (
 	ErrSlugAlreadyExists  = errors.New("slug already exists")
 	ErrMemberAlreadyExists = errors.New("member already exists")
 	ErrCannotRemoveOwner  = errors.New("cannot remove tenant owner")
+	ErrBoardNotFound      = errors.New("board not found")
+	ErrTaskNotFound       = errors.New("task not found")
+	ErrColumnNotFound     = errors.New("column not found")
 )

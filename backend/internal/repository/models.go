@@ -25,6 +25,8 @@ type Column struct {
 	Position  int32              `json:"position"`
 	CreatedAt pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	Color     string             `json:"color"`
+	WipLimit  pgtype.Int4        `json:"wip_limit"`
 }
 
 type Label struct {
@@ -72,6 +74,7 @@ type Task struct {
 	DueDate     pgtype.Timestamptz `json:"due_date"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	Priority    string             `json:"priority"`
 }
 
 type TaskComment struct {

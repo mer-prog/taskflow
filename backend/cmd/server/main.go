@@ -37,17 +37,31 @@ func main() {
 
 	queries := repository.New(pool)
 
+	// Adapters
 	authRepo := adapter.NewAuthRepository(queries)
 	tenantRepo := adapter.NewTenantRepository(queries)
 	projectRepo := adapter.NewProjectRepository(queries)
+	boardRepo := adapter.NewBoardRepository(queries)
+	taskRepo := adapter.NewTaskRepository(queries)
+	dashboardRepo := adapter.NewDashboardRepository(queries)
 
+	// Services
 	authSvc := service.NewAuthService(authRepo, cfg)
 	tenantSvc := service.NewTenantService(tenantRepo)
 	projectSvc := service.NewProjectService(projectRepo)
+	boardSvc := service.NewBoardService(boardRepo)
+	taskSvc := service.NewTaskService(taskRepo)
+	dashboardSvc := service.NewDashboardService(dashboardRepo)
 
+	// Handlers
 	authHandler := handler.NewAuthHandler(authSvc, cfg.Env == "production")
 	tenantHandler := handler.NewTenantHandler(tenantSvc)
 	projectHandler := handler.NewProjectHandler(projectSvc)
+	boardHandler := handler.NewBoardHandler(boardSvc)
+	columnHandler := handler.NewColumnHandler(boardSvc)
+	taskHandler := handler.NewTaskHandler(taskSvc)
+	labelHandler := handler.NewLabelHandler(taskSvc)
+	dashboardHandler := handler.NewDashboardHandler(dashboardSvc)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -70,16 +84,32 @@ func main() {
 	// Auth routes (public)
 	authHandler.Register(v1)
 
-	// JWT-protected routes
 	jwtMw := middleware.JWTAuth(cfg)
+	tenantScope := middleware.TenantScope(tenantSvc)
 
-	// Tenant routes
+	// Tenant routes (JWT only)
 	tenants := v1.Group("/tenants", jwtMw)
 	tenantHandler.Register(tenants)
 
-	// Project routes (JWT + tenant scope)
-	projects := v1.Group("/projects", jwtMw, middleware.TenantScope(tenantSvc))
+	// Tenant-scoped routes (JWT + X-Tenant-ID)
+	scoped := v1.Group("", jwtMw, tenantScope)
+
+	projects := scoped.Group("/projects")
 	projectHandler.Register(projects)
+
+	boards := scoped.Group("/boards")
+	boardHandler.Register(boards)
+
+	columns := scoped.Group("/columns")
+	columnHandler.Register(columns)
+
+	tasks := scoped.Group("/tasks")
+	taskHandler.Register(tasks)
+
+	labelHandler.Register(scoped)
+
+	dashboard := scoped.Group("/dashboard")
+	dashboardHandler.Register(dashboard)
 
 	go func() {
 		if err := e.Start(":" + cfg.Port); err != nil && err != http.ErrServerClosed {
