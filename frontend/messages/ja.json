@@ -11,7 +11,14 @@
     "comingSoon": "準備中です",
     "error": "エラーが発生しました",
     "confirm": "確認",
-    "noItems": "項目がありません"
+    "noItems": "項目がありません",
+    "viewAll": "すべて見る",
+    "search": "検索",
+    "actions": "操作",
+    "name": "名前",
+    "email": "メール",
+    "role": "ロール",
+    "date": "日付"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -48,7 +55,13 @@
     "project": "プロジェクト",
     "projects": "プロジェクト一覧",
     "archive": "アーカイブ",
-    "description": "説明"
+    "description": "説明",
+    "newProject": "新規プロジェクト",
+    "projectName": "プロジェクト名",
+    "projectDescription": "プロジェクトの説明",
+    "createProject": "プロジェクトを作成",
+    "noProjects": "プロジェクトがありません",
+    "createFirst": "最初のプロジェクトを作成しましょう"
   },
   "board": {
     "board": "ボード",
@@ -87,7 +100,41 @@
     "dashboard": "ダッシュボード",
     "progress": "進捗",
     "overdue": "期限切れ",
-    "myTasks": "マイタスク"
+    "myTasks": "マイタスク",
+    "totalTasks": "総タスク数",
+    "completedTasks": "完了タスク",
+    "inProgress": "進行中",
+    "overdueTasks": "期限切れタスク",
+    "noMyTasks": "担当タスクはありません",
+    "noOverdueTasks": "期限切れタスクはありません",
+    "quickLinks": "プロジェクト",
+    "tasksByColumn": "カラム別タスク数"
+  },
+  "members": {
+    "members": "メンバー",
+    "displayName": "表示名",
+    "joinedAt": "参加日",
+    "changeRole": "ロール変更",
+    "removeMember": "メンバーを削除",
+    "removeConfirm": "このメンバーを削除しますか？",
+    "inviteMember": "メンバーを招待",
+    "inviteDescription": "招待するメンバーのメールアドレスを入力",
+    "inviteEmail": "メールアドレス",
+    "inviteNote": "※ 招待メール機能は今後実装予定です",
+    "noMembers": "メンバーがいません"
+  },
+  "settings": {
+    "settings": "設定",
+    "tenantInfo": "ワークスペース情報",
+    "tenantName": "ワークスペース名",
+    "tenantSlug": "スラッグ",
+    "slugReadOnly": "スラッグは変更できません",
+    "updateName": "名前を更新",
+    "dangerZone": "危険ゾーン",
+    "deleteTenant": "ワークスペースを削除",
+    "deleteDescription": "ワークスペースを削除すると、すべてのデータが失われます。この操作は取り消せません。",
+    "updateSuccess": "更新しました",
+    "updateFailed": "更新に失敗しました"
   },
   "landing": {
     "heroTitle": "チームのタスク管理を、もっとシンプルに",

@@ -11,7 +11,14 @@
     "comingSoon": "Coming soon",
     "error": "An error occurred",
     "confirm": "Confirm",
-    "noItems": "No items"
+    "noItems": "No items",
+    "viewAll": "View all",
+    "search": "Search",
+    "actions": "Actions",
+    "name": "Name",
+    "email": "Email",
+    "role": "Role",
+    "date": "Date"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -48,7 +55,13 @@
     "project": "Project",
     "projects": "Projects",
     "archive": "Archive",
-    "description": "Description"
+    "description": "Description",
+    "newProject": "New Project",
+    "projectName": "Project name",
+    "projectDescription": "Project description",
+    "createProject": "Create Project",
+    "noProjects": "No projects yet",
+    "createFirst": "Create your first project to get started"
   },
   "board": {
     "board": "Board",
@@ -87,7 +100,41 @@
     "dashboard": "Dashboard",
     "progress": "Progress",
     "overdue": "Overdue",
-    "myTasks": "My tasks"
+    "myTasks": "My Tasks",
+    "totalTasks": "Total Tasks",
+    "completedTasks": "Completed",
+    "inProgress": "In Progress",
+    "overdueTasks": "Overdue Tasks",
+    "noMyTasks": "No tasks assigned to you",
+    "noOverdueTasks": "No overdue tasks",
+    "quickLinks": "Projects",
+    "tasksByColumn": "Tasks by Column"
+  },
+  "members": {
+    "members": "Members",
+    "displayName": "Display Name",
+    "joinedAt": "Joined",
+    "changeRole": "Change Role",
+    "removeMember": "Remove Member",
+    "removeConfirm": "Are you sure you want to remove this member?",
+    "inviteMember": "Invite Member",
+    "inviteDescription": "Enter the email address of the member to invite",
+    "inviteEmail": "Email address",
+    "inviteNote": "Note: Email invitations will be available in a future update",
+    "noMembers": "No members"
+  },
+  "settings": {
+    "settings": "Settings",
+    "tenantInfo": "Workspace Information",
+    "tenantName": "Workspace Name",
+    "tenantSlug": "Slug",
+    "slugReadOnly": "Slug cannot be changed",
+    "updateName": "Update Name",
+    "dangerZone": "Danger Zone",
+    "deleteTenant": "Delete Workspace",
+    "deleteDescription": "Deleting the workspace will permanently remove all data. This action cannot be undone.",
+    "updateSuccess": "Updated successfully",
+    "updateFailed": "Failed to update"
   },
   "landing": {
     "heroTitle": "Simplify your team's task management",
