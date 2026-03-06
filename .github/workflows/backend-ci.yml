@@ -1,0 +1,63 @@
+name: Backend CI
+
+on:
+  push:
+    branches: [main]
+    paths: ["backend/**"]
+  pull_request:
+    branches: [main]
+    paths: ["backend/**"]
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: taskflow
+          POSTGRES_PASSWORD: taskflow
+          POSTGRES_DB: taskflow
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U taskflow"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+
+    env:
+      DATABASE_URL: postgres://taskflow:taskflow@localhost:5432/taskflow?sslmode=disable
+      JWT_SECRET: ci-test-secret-key
+      CORS_ORIGIN: http://localhost:3000
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-go@v5
+        with:
+          go-version: "1.22"
+          cache-dependency-path: backend/go.sum
+
+      - name: Download dependencies
+        working-directory: backend
+        run: go mod download
+
+      - name: Vet
+        working-directory: backend
+        run: go vet ./...
+
+      - name: Build
+        working-directory: backend
+        run: go build ./...
+
+      - name: Run migrations
+        run: |
+          psql "$DATABASE_URL" -f backend/db/migrations/001_init.up.sql
+          psql "$DATABASE_URL" -f backend/db/migrations/002_add_project_archived_at.up.sql
+          psql "$DATABASE_URL" -f backend/db/migrations/003_add_column_color_task_priority.up.sql
+
+      - name: Test
+        working-directory: backend
+        run: go test ./... -v -count=1
