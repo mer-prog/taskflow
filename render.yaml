@@ -1,0 +1,36 @@
+services:
+  - type: web
+    name: taskflow-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    region: oregon
+    plan: free
+    healthCheckPath: /api/v1/health
+    envVars:
+      - key: ENV
+        value: production
+      - key: PORT
+        value: "8080"
+      - fromGroup: taskflow-env
+
+databases:
+  - name: taskflow-db
+    plan: free
+    region: oregon
+    databaseName: taskflow
+    user: taskflow
+
+envVarGroups:
+  - name: taskflow-env
+    envVars:
+      - key: DATABASE_URL
+        generateValue: false
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_ACCESS_EXPIRY
+        value: 15m
+      - key: JWT_REFRESH_EXPIRY
+        value: 168h
+      - key: CORS_ORIGIN
+        value: https://taskflow-app.vercel.app

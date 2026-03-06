@@ -51,11 +51,16 @@ func (h *WSHandler) connect(c echo.Context) error {
 
 	upgrader := websocket.Upgrader{
 		CheckOrigin: func(r *http.Request) bool {
-			if h.cfg.Env != "production" {
+			if !h.cfg.IsProduction() {
 				return true
 			}
 			origin := r.Header.Get("Origin")
-			return origin == h.cfg.CORSOrigin
+			for _, allowed := range h.cfg.CORSOrigins {
+				if origin == allowed {
+					return true
+				}
+			}
+			return false
 		},
 	}
 

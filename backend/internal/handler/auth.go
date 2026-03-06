@@ -114,6 +114,13 @@ func (h *AuthHandler) logout(c echo.Context) error {
 	return c.NoContent(http.StatusOK)
 }
 
+func (h *AuthHandler) sameSiteMode() http.SameSite {
+	if h.secure {
+		return http.SameSiteNoneMode
+	}
+	return http.SameSiteLaxMode
+}
+
 func (h *AuthHandler) setRefreshCookie(c echo.Context, token string) {
 	c.SetCookie(&http.Cookie{
 		Name:     "refresh_token",
@@ -121,7 +128,7 @@ func (h *AuthHandler) setRefreshCookie(c echo.Context, token string) {
 		Path:     "/api/v1/auth",
 		HttpOnly: true,
 		Secure:   h.secure,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.sameSiteMode(),
 		MaxAge:   int(7 * 24 * time.Hour / time.Second),
 	})
 }
@@ -133,7 +140,7 @@ func (h *AuthHandler) clearRefreshCookie(c echo.Context) {
 		Path:     "/api/v1/auth",
 		HttpOnly: true,
 		Secure:   h.secure,
-		SameSite: http.SameSiteStrictMode,
+		SameSite: h.sameSiteMode(),
 		MaxAge:   -1,
 	})
 }

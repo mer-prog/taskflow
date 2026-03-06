@@ -58,7 +58,7 @@ func main() {
 	hubManager := ws.NewHubManager()
 
 	// Handlers
-	authHandler := handler.NewAuthHandler(authSvc, cfg.Env == "production")
+	authHandler := handler.NewAuthHandler(authSvc, cfg.IsProduction())
 	tenantHandler := handler.NewTenantHandler(tenantSvc)
 	projectHandler := handler.NewProjectHandler(projectSvc)
 	boardHandler := handler.NewBoardHandler(boardSvc)
@@ -74,7 +74,7 @@ func main() {
 	e.Use(echomw.Logger())
 	e.Use(echomw.Recover())
 	e.Use(echomw.CORSWithConfig(echomw.CORSConfig{
-		AllowOrigins:     []string{cfg.CORSOrigin},
+		AllowOrigins:     cfg.CORSOrigins,
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Tenant-ID"},
 		AllowCredentials: true,
