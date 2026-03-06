@@ -9,7 +9,9 @@
     "close": "閉じる",
     "loading": "読み込み中...",
     "comingSoon": "準備中です",
-    "error": "エラーが発生しました"
+    "error": "エラーが発生しました",
+    "confirm": "確認",
+    "noItems": "項目がありません"
   },
   "nav": {
     "dashboard": "ダッシュボード",
@@ -56,7 +58,30 @@
     "priorityMedium": "中",
     "priorityHigh": "高",
     "priorityCritical": "緊急",
-    "dueDate": "期限"
+    "dueDate": "期限",
+    "addTask": "タスクを追加",
+    "addColumn": "カラムを追加",
+    "taskTitle": "タスク名を入力...",
+    "columnName": "カラム名",
+    "description": "説明",
+    "priority": "優先度",
+    "assignee": "担当者",
+    "labels": "ラベル",
+    "comments": "コメント",
+    "addComment": "コメントを追加...",
+    "send": "送信",
+    "noAssignee": "未割り当て",
+    "noPriority": "なし",
+    "deleteTask": "タスクを削除",
+    "deleteColumn": "カラムを削除",
+    "deleteConfirm": "本当に削除しますか？",
+    "overdue": "期限切れ",
+    "dueSoon": "期限間近",
+    "wipLimitExceeded": "WIP制限超過",
+    "moveFailed": "タスクの移動に失敗しました",
+    "createFailed": "作成に失敗しました",
+    "updateFailed": "更新に失敗しました",
+    "deleteFailed": "削除に失敗しました"
   },
   "dashboard": {
     "dashboard": "ダッシュボード",

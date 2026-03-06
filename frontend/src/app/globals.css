@@ -124,3 +124,27 @@
     @apply bg-background text-foreground;
   }
 }
+
+/* Kanban scrollbar */
+.kanban-scroll {
+  scrollbar-width: thin;
+  scrollbar-color: hsl(var(--border)) transparent;
+}
+.kanban-scroll::-webkit-scrollbar {
+  height: 6px;
+}
+.kanban-scroll::-webkit-scrollbar-track {
+  background: transparent;
+}
+.kanban-scroll::-webkit-scrollbar-thumb {
+  background-color: hsl(var(--border));
+  border-radius: 3px;
+}
+@media (max-width: 767px) {
+  .kanban-scroll::-webkit-scrollbar {
+    display: none;
+  }
+  .kanban-scroll {
+    scrollbar-width: none;
+  }
+}
