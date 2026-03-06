@@ -64,6 +64,32 @@ func (q *Queries) DeleteColumn(ctx context.Context, arg DeleteColumnParams) erro
 	return err
 }
 
+const getColumnByID = `-- name: GetColumnByID :one
+SELECT id, tenant_id, board_id, name, position, created_at, updated_at, color, wip_limit FROM columns WHERE id = $1 AND tenant_id = $2
+`
+
+type GetColumnByIDParams struct {
+	ID       pgtype.UUID `json:"id"`
+	TenantID pgtype.UUID `json:"tenant_id"`
+}
+
+func (q *Queries) GetColumnByID(ctx context.Context, arg GetColumnByIDParams) (Column, error) {
+	row := q.db.QueryRow(ctx, getColumnByID, arg.ID, arg.TenantID)
+	var i Column
+	err := row.Scan(
+		&i.ID,
+		&i.TenantID,
+		&i.BoardID,
+		&i.Name,
+		&i.Position,
+		&i.CreatedAt,
+		&i.UpdatedAt,
+		&i.Color,
+		&i.WipLimit,
+	)
+	return i, err
+}
+
 const getColumnsByBoardID = `-- name: GetColumnsByBoardID :many
 SELECT id, tenant_id, board_id, name, position, created_at, updated_at, color, wip_limit FROM columns WHERE board_id = $1 AND tenant_id = $2 ORDER BY position
 `

@@ -3,6 +3,9 @@ INSERT INTO columns (tenant_id, board_id, name, position, color, wip_limit)
 VALUES ($1, $2, $3, $4, $5, $6)
 RETURNING *;
 
+-- name: GetColumnByID :one
+SELECT * FROM columns WHERE id = $1 AND tenant_id = $2;
+
 -- name: GetColumnsByBoardID :many
 SELECT * FROM columns WHERE board_id = $1 AND tenant_id = $2 ORDER BY position;
 

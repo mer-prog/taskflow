@@ -1,6 +1,7 @@
 package handler
 
 import (
+	"encoding/json"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -8,14 +9,17 @@ import (
 	"github.com/mer-prog/taskflow/internal/middleware"
 	"github.com/mer-prog/taskflow/internal/model"
 	"github.com/mer-prog/taskflow/internal/service"
+	"github.com/mer-prog/taskflow/internal/ws"
 )
 
 type TaskHandler struct {
-	svc *service.TaskService
+	svc      *service.TaskService
+	boardSvc *service.BoardService
+	hub      *ws.HubManager
 }
 
-func NewTaskHandler(svc *service.TaskService) *TaskHandler {
-	return &TaskHandler{svc: svc}
+func NewTaskHandler(svc *service.TaskService, boardSvc *service.BoardService, hub *ws.HubManager) *TaskHandler {
+	return &TaskHandler{svc: svc, boardSvc: boardSvc, hub: hub}
 }
 
 func (h *TaskHandler) Register(g *echo.Group) {
@@ -34,34 +38,35 @@ func (h *TaskHandler) create(c echo.Context) error {
 	var req model.CreateTaskRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid request body",
+			Code: "BAD_REQUEST", Message: "invalid request body",
 		})
 	}
 
 	if req.Title == "" {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "title is required",
+			Code: "BAD_REQUEST", Message: "title is required",
 		})
 	}
 
 	if req.ColumnID == uuid.Nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "column_id is required",
+			Code: "BAD_REQUEST", Message: "column_id is required",
 		})
 	}
 
 	tenantID := middleware.GetTenantID(c)
+	userID := middleware.GetUserID(c)
 	ctx := c.Request().Context()
 
 	resp, err := h.svc.Create(ctx, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
+	}
+
+	if boardID, err := h.boardSvc.GetBoardIDByColumnID(ctx, req.ColumnID, tenantID); err == nil {
+		h.broadcast(boardID.String(), "task:created", userID.String(), resp)
 	}
 
 	return c.JSON(http.StatusCreated, resp)
@@ -71,8 +76,7 @@ func (h *TaskHandler) get(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
@@ -82,8 +86,7 @@ func (h *TaskHandler) get(c echo.Context) error {
 	resp, err := h.svc.Get(ctx, taskID, tenantID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, model.ErrorResponse{
-			Code:    "NOT_FOUND",
-			Message: err.Error(),
+			Code: "NOT_FOUND", Message: err.Error(),
 		})
 	}
 
@@ -94,18 +97,17 @@ func (h *TaskHandler) update(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
 	tenantID := middleware.GetTenantID(c)
+	userID := middleware.GetUserID(c)
 
 	var req model.UpdateTaskRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid request body",
+			Code: "BAD_REQUEST", Message: "invalid request body",
 		})
 	}
 
@@ -113,9 +115,12 @@ func (h *TaskHandler) update(c echo.Context) error {
 	resp, err := h.svc.Update(ctx, taskID, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
+	}
+
+	if boardID, err := h.boardSvc.GetBoardIDByColumnID(ctx, resp.ColumnID, tenantID); err == nil {
+		h.broadcast(boardID.String(), "task:updated", userID.String(), resp)
 	}
 
 	return c.JSON(http.StatusOK, resp)
@@ -125,19 +130,31 @@ func (h *TaskHandler) delete(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
 	tenantID := middleware.GetTenantID(c)
+	userID := middleware.GetUserID(c)
 	ctx := c.Request().Context()
+
+	// Look up board_id before deleting
+	task, err := h.svc.Get(ctx, taskID, tenantID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Code: "INTERNAL_ERROR", Message: err.Error(),
+		})
+	}
+	boardID, _ := h.boardSvc.GetBoardIDByColumnID(ctx, task.ColumnID, tenantID)
 
 	if err := h.svc.Delete(ctx, taskID, tenantID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
+	}
+
+	if boardID != uuid.Nil {
+		h.broadcast(boardID.String(), "task:deleted", userID.String(), map[string]string{"id": taskID.String()})
 	}
 
 	return c.NoContent(http.StatusNoContent)
@@ -147,33 +164,34 @@ func (h *TaskHandler) move(c echo.Context) error {
 	var req model.MoveTaskRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid request body",
+			Code: "BAD_REQUEST", Message: "invalid request body",
 		})
 	}
 
 	if req.TaskID == uuid.Nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "task_id is required",
+			Code: "BAD_REQUEST", Message: "task_id is required",
 		})
 	}
 
 	if req.ToColumnID == uuid.Nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "to_column_id is required",
+			Code: "BAD_REQUEST", Message: "to_column_id is required",
 		})
 	}
 
 	tenantID := middleware.GetTenantID(c)
+	userID := middleware.GetUserID(c)
 	ctx := c.Request().Context()
 
 	if err := h.svc.Move(ctx, tenantID, req); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
+	}
+
+	if boardID, err := h.boardSvc.GetBoardIDByColumnID(ctx, req.ToColumnID, tenantID); err == nil {
+		h.broadcast(boardID.String(), "task:moved", userID.String(), req)
 	}
 
 	return c.NoContent(http.StatusOK)
@@ -183,23 +201,20 @@ func (h *TaskHandler) addLabel(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
 	var req model.TaskLabelRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid request body",
+			Code: "BAD_REQUEST", Message: "invalid request body",
 		})
 	}
 
 	if req.LabelID == uuid.Nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "label_id is required",
+			Code: "BAD_REQUEST", Message: "label_id is required",
 		})
 	}
 
@@ -207,8 +222,7 @@ func (h *TaskHandler) addLabel(c echo.Context) error {
 
 	if err := h.svc.AddLabel(ctx, taskID, req.LabelID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
 	}
 
@@ -219,16 +233,14 @@ func (h *TaskHandler) removeLabel(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
 	labelID, err := uuid.Parse(c.Param("lid"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid label id",
+			Code: "BAD_REQUEST", Message: "invalid label id",
 		})
 	}
 
@@ -236,8 +248,7 @@ func (h *TaskHandler) removeLabel(c echo.Context) error {
 
 	if err := h.svc.RemoveLabel(ctx, taskID, labelID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
 	}
 
@@ -248,23 +259,20 @@ func (h *TaskHandler) addComment(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
 	var req model.CreateCommentRequest
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid request body",
+			Code: "BAD_REQUEST", Message: "invalid request body",
 		})
 	}
 
 	if req.Content == "" {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "content is required",
+			Code: "BAD_REQUEST", Message: "content is required",
 		})
 	}
 
@@ -275,8 +283,7 @@ func (h *TaskHandler) addComment(c echo.Context) error {
 	resp, err := h.svc.CreateComment(ctx, tenantID, taskID, userID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
 	}
 
@@ -287,8 +294,7 @@ func (h *TaskHandler) getComments(c echo.Context) error {
 	taskID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
-			Code:    "BAD_REQUEST",
-			Message: "invalid task id",
+			Code: "BAD_REQUEST", Message: "invalid task id",
 		})
 	}
 
@@ -298,10 +304,21 @@ func (h *TaskHandler) getComments(c echo.Context) error {
 	resp, err := h.svc.GetComments(ctx, taskID, tenantID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: err.Error(),
 		})
 	}
 
 	return c.JSON(http.StatusOK, resp)
+}
+
+func (h *TaskHandler) broadcast(boardID, eventType, userID string, payload interface{}) {
+	data, err := json.Marshal(payload)
+	if err != nil {
+		return
+	}
+	h.hub.Broadcast(boardID, ws.WSMessage{
+		Type:    eventType,
+		Payload: data,
+		UserID:  userID,
+	})
 }

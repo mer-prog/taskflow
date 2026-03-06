@@ -176,6 +176,17 @@ func (a *BoardRepositoryAdapter) GetMaxColumnPosition(ctx context.Context, board
 	return int(pos), nil
 }
 
+func (a *BoardRepositoryAdapter) GetColumnByID(ctx context.Context, id, tenantID uuid.UUID) (service.ColumnData, error) {
+	c, err := a.q.GetColumnByID(ctx, repository.GetColumnByIDParams{
+		ID:       toPgUUID(id),
+		TenantID: toPgUUID(tenantID),
+	})
+	if err != nil {
+		return service.ColumnData{}, err
+	}
+	return toColumnData(c), nil
+}
+
 // Helper conversions
 
 func toBoardData(b repository.Board) service.BoardData {

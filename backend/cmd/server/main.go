@@ -19,6 +19,7 @@ import (
 	"github.com/mer-prog/taskflow/internal/model"
 	"github.com/mer-prog/taskflow/internal/repository"
 	"github.com/mer-prog/taskflow/internal/service"
+	"github.com/mer-prog/taskflow/internal/ws"
 )
 
 func main() {
@@ -53,15 +54,19 @@ func main() {
 	taskSvc := service.NewTaskService(taskRepo)
 	dashboardSvc := service.NewDashboardService(dashboardRepo)
 
+	// WebSocket
+	hubManager := ws.NewHubManager()
+
 	// Handlers
 	authHandler := handler.NewAuthHandler(authSvc, cfg.Env == "production")
 	tenantHandler := handler.NewTenantHandler(tenantSvc)
 	projectHandler := handler.NewProjectHandler(projectSvc)
 	boardHandler := handler.NewBoardHandler(boardSvc)
-	columnHandler := handler.NewColumnHandler(boardSvc)
-	taskHandler := handler.NewTaskHandler(taskSvc)
+	columnHandler := handler.NewColumnHandler(boardSvc, hubManager)
+	taskHandler := handler.NewTaskHandler(taskSvc, boardSvc, hubManager)
 	labelHandler := handler.NewLabelHandler(taskSvc)
 	dashboardHandler := handler.NewDashboardHandler(dashboardSvc)
+	wsHandler := handler.NewWSHandler(hubManager, cfg)
 
 	e := echo.New()
 	e.HideBanner = true
@@ -83,6 +88,9 @@ func main() {
 
 	// Auth routes (public)
 	authHandler.Register(v1)
+
+	// WebSocket route (auth handled inside handler)
+	wsHandler.Register(v1)
 
 	jwtMw := middleware.JWTAuth(cfg)
 	tenantScope := middleware.TenantScope(tenantSvc)
