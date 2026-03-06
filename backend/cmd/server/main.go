@@ -12,8 +12,12 @@ import (
 	"github.com/labstack/echo/v4"
 	echomw "github.com/labstack/echo/v4/middleware"
 
+	"github.com/mer-prog/taskflow/internal/adapter"
 	"github.com/mer-prog/taskflow/internal/config"
+	"github.com/mer-prog/taskflow/internal/handler"
 	"github.com/mer-prog/taskflow/internal/model"
+	"github.com/mer-prog/taskflow/internal/repository"
+	"github.com/mer-prog/taskflow/internal/service"
 )
 
 func main() {
@@ -29,6 +33,11 @@ func main() {
 		log.Fatalf("failed to ping database: %v", err)
 	}
 	log.Println("connected to database")
+
+	queries := repository.New(pool)
+	authRepo := adapter.NewAuthRepository(queries)
+	authSvc := service.NewAuthService(authRepo, cfg)
+	authHandler := handler.NewAuthHandler(authSvc, cfg.Env == "production")
 
 	e := echo.New()
 	e.HideBanner = true
@@ -51,12 +60,7 @@ func main() {
 		})
 	})
 
-	// TODO: Wire auth handler after sqlc generate
-	// repo := repository.New(pool)
-	// authRepo := adapter.NewAuthRepository(repo)
-	// authSvc := service.NewAuthService(authRepo, cfg)
-	// authHandler := handler.NewAuthHandler(authSvc, cfg.Env == "production")
-	// authHandler.Register(v1)
+	authHandler.Register(v1)
 
 	go func() {
 		if err := e.Start(":" + cfg.Port); err != nil && err != http.ErrServerClosed {
