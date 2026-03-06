@@ -1,0 +1,73 @@
+{
+  "common": {
+    "appName": "TaskFlow",
+    "save": "Save",
+    "cancel": "Cancel",
+    "delete": "Delete",
+    "create": "Create",
+    "edit": "Edit",
+    "close": "Close",
+    "loading": "Loading...",
+    "comingSoon": "Coming soon",
+    "error": "An error occurred"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "projects": "Projects",
+    "members": "Members",
+    "settings": "Settings"
+  },
+  "auth": {
+    "login": "Sign in",
+    "register": "Sign up",
+    "email": "Email",
+    "password": "Password",
+    "displayName": "Display name",
+    "loginTitle": "Sign in",
+    "loginDescription": "Sign in with your email and password",
+    "registerTitle": "Create an account",
+    "registerDescription": "Create a new account to get started",
+    "noAccount": "Don't have an account?",
+    "hasAccount": "Already have an account?",
+    "createAccount": "Create account",
+    "loginHere": "Sign in here",
+    "logout": "Sign out"
+  },
+  "workspace": {
+    "workspace": "Workspace",
+    "members": "Members",
+    "settings": "Settings",
+    "roleOwner": "Owner",
+    "roleAdmin": "Admin",
+    "roleMember": "Member",
+    "roleViewer": "Viewer"
+  },
+  "project": {
+    "project": "Project",
+    "projects": "Projects",
+    "archive": "Archive",
+    "description": "Description"
+  },
+  "board": {
+    "board": "Board",
+    "column": "Column",
+    "task": "Task",
+    "priorityLow": "Low",
+    "priorityMedium": "Medium",
+    "priorityHigh": "High",
+    "priorityCritical": "Critical",
+    "dueDate": "Due date"
+  },
+  "dashboard": {
+    "dashboard": "Dashboard",
+    "progress": "Progress",
+    "overdue": "Overdue",
+    "myTasks": "My tasks"
+  },
+  "landing": {
+    "heroTitle": "Simplify your team's task management",
+    "heroDescription": "Manage projects in real-time with Kanban boards. Keep your entire team on the same page.",
+    "getStarted": "Get started free",
+    "login": "Sign in"
+  }
+}

@@ -1,0 +1,73 @@
+{
+  "common": {
+    "appName": "TaskFlow",
+    "save": "保存",
+    "cancel": "キャンセル",
+    "delete": "削除",
+    "create": "作成",
+    "edit": "編集",
+    "close": "閉じる",
+    "loading": "読み込み中...",
+    "comingSoon": "準備中です",
+    "error": "エラーが発生しました"
+  },
+  "nav": {
+    "dashboard": "ダッシュボード",
+    "projects": "プロジェクト",
+    "members": "メンバー",
+    "settings": "設定"
+  },
+  "auth": {
+    "login": "ログイン",
+    "register": "アカウント作成",
+    "email": "メールアドレス",
+    "password": "パスワード",
+    "displayName": "表示名",
+    "loginTitle": "ログイン",
+    "loginDescription": "メールアドレスとパスワードでログイン",
+    "registerTitle": "アカウント作成",
+    "registerDescription": "新しいアカウントを作成します",
+    "noAccount": "アカウントをお持ちでない方は",
+    "hasAccount": "すでにアカウントをお持ちの方は",
+    "createAccount": "アカウントを作成",
+    "loginHere": "ログインはこちら",
+    "logout": "ログアウト"
+  },
+  "workspace": {
+    "workspace": "ワークスペース",
+    "members": "メンバー",
+    "settings": "設定",
+    "roleOwner": "オーナー",
+    "roleAdmin": "管理者",
+    "roleMember": "メンバー",
+    "roleViewer": "閲覧者"
+  },
+  "project": {
+    "project": "プロジェクト",
+    "projects": "プロジェクト一覧",
+    "archive": "アーカイブ",
+    "description": "説明"
+  },
+  "board": {
+    "board": "ボード",
+    "column": "カラム",
+    "task": "タスク",
+    "priorityLow": "低",
+    "priorityMedium": "中",
+    "priorityHigh": "高",
+    "priorityCritical": "緊急",
+    "dueDate": "期限"
+  },
+  "dashboard": {
+    "dashboard": "ダッシュボード",
+    "progress": "進捗",
+    "overdue": "期限切れ",
+    "myTasks": "マイタスク"
+  },
+  "landing": {
+    "heroTitle": "チームのタスク管理を、もっとシンプルに",
+    "heroDescription": "カンバンボードでプロジェクトをリアルタイムに共同管理。チーム全員が同じページで作業できます。",
+    "getStarted": "無料で始める",
+    "login": "ログイン"
+  }
+}
