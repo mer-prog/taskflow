@@ -121,7 +121,7 @@ func (h *ProjectHandler) archive(c echo.Context) error {
 		}
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Code: "INTERNAL_ERROR", Message: "failed to archive project"})
 	}
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *ProjectHandler) getMembers(c echo.Context) error {
@@ -180,5 +180,5 @@ func (h *ProjectHandler) removeMember(c echo.Context) error {
 	if err := h.svc.RemoveMember(c.Request().Context(), projectID, targetUID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{Code: "INTERNAL_ERROR", Message: "failed to remove member"})
 	}
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }

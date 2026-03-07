@@ -187,7 +187,7 @@ func (h *TenantHandler) updateMemberRole(c echo.Context) error {
 	if err := h.svc.UpdateMemberRole(c.Request().Context(), tenantID, targetUID, req.Role); err != nil {
 		return handleTenantError(c, err)
 	}
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *TenantHandler) removeMember(c echo.Context) error {
@@ -212,7 +212,7 @@ func (h *TenantHandler) removeMember(c echo.Context) error {
 	if err := h.svc.RemoveMember(c.Request().Context(), tenantID, targetUID); err != nil {
 		return handleTenantError(c, err)
 	}
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func handleTenantError(c echo.Context, err error) error {

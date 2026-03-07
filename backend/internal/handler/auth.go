@@ -105,13 +105,13 @@ func (h *AuthHandler) refresh(c echo.Context) error {
 func (h *AuthHandler) logout(c echo.Context) error {
 	cookie, err := c.Cookie("refresh_token")
 	if err != nil {
-		return c.NoContent(http.StatusOK)
+		return c.NoContent(http.StatusNoContent)
 	}
 
 	_ = h.svc.Logout(c.Request().Context(), cookie.Value)
 
 	h.clearRefreshCookie(c)
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *AuthHandler) sameSiteMode() http.SameSite {

@@ -194,7 +194,7 @@ func (h *TaskHandler) move(c echo.Context) error {
 		h.broadcast(boardID.String(), "task:moved", userID.String(), req)
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *TaskHandler) addLabel(c echo.Context) error {
@@ -252,7 +252,7 @@ func (h *TaskHandler) removeLabel(c echo.Context) error {
 		})
 	}
 
-	return c.NoContent(http.StatusOK)
+	return c.NoContent(http.StatusNoContent)
 }
 
 func (h *TaskHandler) addComment(c echo.Context) error {
