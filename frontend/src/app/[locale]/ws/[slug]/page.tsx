@@ -52,11 +52,10 @@ export default function DashboardPage() {
   const overdueCnt = summary?.overdue_tasks ?? 0;
   const byColumn = summary?.by_column ?? [];
   const completedTasks = byColumn
-    .filter(
-      (c) =>
-        c.column_name.toLowerCase().includes("done") ||
-        c.column_name.includes("完了")
-    )
+    .filter((c) => {
+      const name = c.column_name.toLowerCase();
+      return name.includes("done") || name.includes("complete") || name.includes("完了");
+    })
     .reduce((sum, c) => sum + c.task_count, 0);
   const inProgressTasks = totalTasks - completedTasks - overdueCnt;
 
