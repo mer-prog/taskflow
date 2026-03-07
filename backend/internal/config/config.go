@@ -57,7 +57,8 @@ func parseCORSOrigins(s string) []string {
 	parts := strings.Split(s, ",")
 	origins := make([]string, 0, len(parts))
 	for _, p := range parts {
-		if trimmed := strings.TrimSpace(p); trimmed != "" {
+		trimmed := strings.TrimRight(strings.TrimSpace(p), "/")
+		if trimmed != "" {
 			origins = append(origins, trimmed)
 		}
 	}

@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
@@ -73,8 +74,16 @@ func main() {
 
 	e.Use(echomw.Logger())
 	e.Use(echomw.Recover())
+	log.Printf("CORS allowed origins: %v", cfg.CORSOrigins)
 	e.Use(echomw.CORSWithConfig(echomw.CORSConfig{
-		AllowOrigins:     cfg.CORSOrigins,
+		AllowOriginFunc: func(origin string) (bool, error) {
+			for _, o := range cfg.CORSOrigins {
+				if o == "*" || strings.EqualFold(o, origin) {
+					return true, nil
+				}
+			}
+			return false, nil
+		},
 		AllowMethods:     []string{http.MethodGet, http.MethodPost, http.MethodPut, http.MethodPatch, http.MethodDelete},
 		AllowHeaders:     []string{echo.HeaderOrigin, echo.HeaderContentType, echo.HeaderAccept, echo.HeaderAuthorization, "X-Tenant-ID"},
 		AllowCredentials: true,
