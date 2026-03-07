@@ -17,6 +17,8 @@ import (
 	"github.com/mer-prog/taskflow/internal/model"
 )
 
+const bcryptCost = 12
+
 type RepositoryUser struct {
 	ID           uuid.UUID
 	Email        string
@@ -71,7 +73,7 @@ func (s *AuthService) Register(ctx context.Context, req model.RegisterRequest) (
 		return nil, "", ErrEmailAlreadyExists
 	}
 
-	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), 12)
+	hash, err := bcrypt.GenerateFromPassword([]byte(req.Password), bcryptCost)
 	if err != nil {
 		return nil, "", fmt.Errorf("service.Register: %w", err)
 	}
