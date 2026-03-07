@@ -12,7 +12,7 @@ export function useWebSocket(boardId: string | null) {
   const wsRef = useRef<WebSocket | null>(null);
   const backoffRef = useRef(1000);
   const mountedRef = useRef(true);
-  const connectRef = useRef<() => void>();
+  const connectRef = useRef<() => void>(undefined);
   const handleWSMessage = useBoardStore((s) => s.handleWSMessage);
   const userId = useAuthStore((s) => s.user?.id);
 
@@ -55,8 +55,9 @@ export function useWebSocket(boardId: string | null) {
     };
   }, [boardId, handleWSMessage, userId]);
 
-  // Keep ref in sync to avoid stale closure in setTimeout
-  connectRef.current = connect;
+  useEffect(() => {
+    connectRef.current = connect;
+  }, [connect]);
 
   useEffect(() => {
     mountedRef.current = true;
