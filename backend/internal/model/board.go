@@ -15,6 +15,14 @@ type UpdateBoardRequest struct {
 	Name *string `json:"name"`
 }
 
+type BoardResponse struct {
+	ID        uuid.UUID `json:"id"`
+	ProjectID uuid.UUID `json:"project_id"`
+	Name      string    `json:"name"`
+	CreatedAt time.Time `json:"created_at"`
+	UpdatedAt time.Time `json:"updated_at"`
+}
+
 type BoardDetailResponse struct {
 	ID        uuid.UUID          `json:"id"`
 	ProjectID uuid.UUID          `json:"project_id"`

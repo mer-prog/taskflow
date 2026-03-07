@@ -29,6 +29,16 @@ func (h *BoardHandler) RegisterProjectRoutes(g *echo.Group) {
 	g.GET("/:id/boards", h.listByProject)
 }
 
+func toBoardResponse(b service.BoardData) model.BoardResponse {
+	return model.BoardResponse{
+		ID:        b.ID,
+		ProjectID: b.ProjectID,
+		Name:      b.Name,
+		CreatedAt: b.CreatedAt,
+		UpdatedAt: b.UpdatedAt,
+	}
+}
+
 func (h *BoardHandler) listByProject(c echo.Context) error {
 	projectID, err := uuid.Parse(c.Param("id"))
 	if err != nil {
@@ -49,15 +59,9 @@ func (h *BoardHandler) listByProject(c echo.Context) error {
 		})
 	}
 
-	result := make([]map[string]interface{}, len(boards))
+	result := make([]model.BoardResponse, len(boards))
 	for i, b := range boards {
-		result[i] = map[string]interface{}{
-			"id":         b.ID,
-			"project_id": b.ProjectID,
-			"name":       b.Name,
-			"created_at": b.CreatedAt,
-			"updated_at": b.UpdatedAt,
-		}
+		result[i] = toBoardResponse(b)
 	}
 
 	return c.JSON(http.StatusOK, result)
@@ -80,10 +84,8 @@ func (h *BoardHandler) create(c echo.Context) error {
 	}
 
 	tenantID := middleware.GetTenantID(c)
-	userID := middleware.GetUserID(c)
-	_ = userID
-
 	ctx := c.Request().Context()
+
 	board, err := h.svc.Create(ctx, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
@@ -92,13 +94,7 @@ func (h *BoardHandler) create(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusCreated, map[string]interface{}{
-		"id":         board.ID,
-		"project_id": board.ProjectID,
-		"name":       board.Name,
-		"created_at": board.CreatedAt,
-		"updated_at": board.UpdatedAt,
-	})
+	return c.JSON(http.StatusCreated, toBoardResponse(*board))
 }
 
 func (h *BoardHandler) get(c echo.Context) error {
@@ -152,13 +148,7 @@ func (h *BoardHandler) update(c echo.Context) error {
 		})
 	}
 
-	return c.JSON(http.StatusOK, map[string]interface{}{
-		"id":         board.ID,
-		"project_id": board.ProjectID,
-		"name":       board.Name,
-		"created_at": board.CreatedAt,
-		"updated_at": board.UpdatedAt,
-	})
+	return c.JSON(http.StatusOK, toBoardResponse(*board))
 }
 
 func (h *BoardHandler) delete(c echo.Context) error {
