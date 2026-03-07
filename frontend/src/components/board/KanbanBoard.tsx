@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useMemo, useState } from "react";
 import { useTranslations } from "next-intl";
 import {
   DndContext,
@@ -26,6 +26,8 @@ export function KanbanBoard() {
   const t = useTranslations("board");
   const { columns, activeTask, setActiveTask, moveTask, selectedTask } = useBoardStore();
   const [overId, setOverId] = useState<string | null>(null);
+
+  const columnIds = useMemo(() => columns.map((c) => c.id), [columns]);
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
@@ -98,7 +100,7 @@ export function KanbanBoard() {
       >
         <div className="flex gap-4 overflow-x-auto pb-4 kanban-scroll">
           <SortableContext
-            items={columns.map((c) => c.id)}
+            items={columnIds}
             strategy={horizontalListSortingStrategy}
           >
             {columns.map((column) => (
