@@ -10,6 +10,16 @@ import { Label } from "@/components/ui/label";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
+import {
   Dialog,
   DialogContent,
   DialogDescription,
@@ -65,6 +75,7 @@ export default function MembersPage() {
   const [isInviteOpen, setIsInviteOpen] = useState(false);
   const [inviteEmail, setInviteEmail] = useState("");
   const [removingId, setRemovingId] = useState<string | null>(null);
+  const [memberToRemove, setMemberToRemove] = useState<Member | null>(null);
 
   const isOwner = currentUserRole === "owner";
   const isAdmin = currentUserRole === "admin" || isOwner;
@@ -121,8 +132,9 @@ export default function MembersPage() {
             </DialogHeader>
             <div className="space-y-4 pt-2">
               <div className="space-y-2">
-                <Label>{t("inviteEmail")}</Label>
+                <Label htmlFor="invite-email">{t("inviteEmail")}</Label>
                 <Input
+                  id="invite-email"
                   type="email"
                   value={inviteEmail}
                   onChange={(e) => setInviteEmail(e.target.value)}
@@ -224,11 +236,8 @@ export default function MembersPage() {
                           size="sm"
                           className="h-8 w-8 p-0 text-destructive hover:text-destructive"
                           disabled={removingId === member.user_id}
-                          onClick={() => {
-                            if (confirm(t("removeConfirm"))) {
-                              handleRemove(member);
-                            }
-                          }}
+                          aria-label={t("removeMember")}
+                          onClick={() => setMemberToRemove(member)}
                         >
                           <Trash2 className="h-4 w-4" />
                         </Button>
@@ -276,11 +285,8 @@ export default function MembersPage() {
                   size="sm"
                   className="shrink-0 text-destructive hover:text-destructive min-h-[44px] min-w-[44px]"
                   disabled={removingId === member.user_id}
-                  onClick={() => {
-                    if (confirm(t("removeConfirm"))) {
-                      handleRemove(member);
-                    }
-                  }}
+                  aria-label={t("removeMember")}
+                  onClick={() => setMemberToRemove(member)}
                 >
                   <Trash2 className="h-4 w-4" />
                 </Button>
@@ -293,6 +299,26 @@ export default function MembersPage() {
           </p>
         )}
       </div>
+
+      <AlertDialog open={!!memberToRemove} onOpenChange={(open) => !open && setMemberToRemove(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>{t("removeMember")}</AlertDialogTitle>
+            <AlertDialogDescription>{t("removeConfirm")}</AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>{tc("cancel")}</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                if (memberToRemove) handleRemove(memberToRemove);
+                setMemberToRemove(null);
+              }}
+            >
+              {tc("confirm")}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
