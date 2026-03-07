@@ -24,7 +24,8 @@
     "dashboard": "Dashboard",
     "projects": "Projects",
     "members": "Members",
-    "settings": "Settings"
+    "settings": "Settings",
+    "menu": "Menu"
   },
   "auth": {
     "login": "Sign in",

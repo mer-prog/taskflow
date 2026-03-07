@@ -39,8 +39,8 @@ export function Header({ workspaceName }: { workspaceName?: string }) {
         <div className="md:hidden">
           <Sheet>
             <SheetTrigger asChild>
-              <Button variant="ghost" size="sm" className="min-w-[44px] min-h-[44px]">
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2">
+              <Button variant="ghost" size="sm" className="min-w-[44px] min-h-[44px]" aria-label={t("nav.menu")}>
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none" stroke="currentColor" strokeWidth="2" aria-hidden="true">
                   <path d="M3 5h14M3 10h14M3 15h14" />
                 </svg>
               </Button>
