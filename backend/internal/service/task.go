@@ -59,6 +59,7 @@ type TaskRepository interface {
 	DeleteLabel(ctx context.Context, id, tenantID uuid.UUID) error
 	CreateComment(ctx context.Context, tenantID, taskID, userID uuid.UUID, content string) (CommentData, error)
 	GetCommentsByTaskID(ctx context.Context, taskID, tenantID uuid.UUID) ([]CommentData, error)
+	RunInTx(ctx context.Context, fn func(TaskRepository) error) error
 }
 
 type TaskService struct {
@@ -114,27 +115,29 @@ func (s *TaskService) Delete(ctx context.Context, id, tenantID uuid.UUID) error 
 }
 
 func (s *TaskService) Move(ctx context.Context, tenantID uuid.UUID, req model.MoveTaskRequest) error {
-	task, err := s.repo.GetTaskByID(ctx, req.TaskID, tenantID)
-	if err != nil {
-		return ErrTaskNotFound
-	}
+	return s.repo.RunInTx(ctx, func(txRepo TaskRepository) error {
+		task, err := txRepo.GetTaskByID(ctx, req.TaskID, tenantID)
+		if err != nil {
+			return ErrTaskNotFound
+		}
 
-	// Close gap in source column
-	if err := s.repo.ShiftTaskPositionsDown(ctx, task.ColumnID, tenantID, task.Position); err != nil {
-		return fmt.Errorf("service.TaskMove: %w", err)
-	}
+		// Close gap in source column
+		if err := txRepo.ShiftTaskPositionsDown(ctx, task.ColumnID, tenantID, task.Position); err != nil {
+			return fmt.Errorf("service.TaskMove: %w", err)
+		}
 
-	// Make room in target column
-	if err := s.repo.ShiftTaskPositionsUp(ctx, req.ToColumnID, tenantID, req.NewPosition); err != nil {
-		return fmt.Errorf("service.TaskMove: %w", err)
-	}
+		// Make room in target column
+		if err := txRepo.ShiftTaskPositionsUp(ctx, req.ToColumnID, tenantID, req.NewPosition); err != nil {
+			return fmt.Errorf("service.TaskMove: %w", err)
+		}
 
-	// Move the task
-	if err := s.repo.MoveTask(ctx, req.TaskID, req.ToColumnID, req.NewPosition, tenantID); err != nil {
-		return fmt.Errorf("service.TaskMove: %w", err)
-	}
+		// Move the task
+		if err := txRepo.MoveTask(ctx, req.TaskID, req.ToColumnID, req.NewPosition, tenantID); err != nil {
+			return fmt.Errorf("service.TaskMove: %w", err)
+		}
 
-	return nil
+		return nil
+	})
 }
 
 func (s *TaskService) AddLabel(ctx context.Context, taskID, labelID uuid.UUID) error {

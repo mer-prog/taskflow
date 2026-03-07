@@ -2,21 +2,39 @@ package adapter
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/mer-prog/taskflow/internal/repository"
 	"github.com/mer-prog/taskflow/internal/service"
 )
 
 type TaskRepositoryAdapter struct {
-	q *repository.Queries
+	q    *repository.Queries
+	pool *pgxpool.Pool
 }
 
-func NewTaskRepository(q *repository.Queries) *TaskRepositoryAdapter {
-	return &TaskRepositoryAdapter{q: q}
+func NewTaskRepository(q *repository.Queries, pool *pgxpool.Pool) *TaskRepositoryAdapter {
+	return &TaskRepositoryAdapter{q: q, pool: pool}
+}
+
+func (a *TaskRepositoryAdapter) RunInTx(ctx context.Context, fn func(service.TaskRepository) error) error {
+	tx, err := a.pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	txAdapter := &TaskRepositoryAdapter{q: a.q.WithTx(tx), pool: a.pool}
+	if err := fn(txAdapter); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func (a *TaskRepositoryAdapter) CreateTask(ctx context.Context, tenantID, columnID uuid.UUID, title string, description *string, position int, priority string, assigneeID *uuid.UUID, dueDate *time.Time) (service.TaskData, error) {

@@ -2,21 +2,39 @@ package adapter
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/google/uuid"
+	"github.com/jackc/pgx/v5"
 	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/jackc/pgx/v5/pgxpool"
 
 	"github.com/mer-prog/taskflow/internal/repository"
 	"github.com/mer-prog/taskflow/internal/service"
 )
 
 type BoardRepositoryAdapter struct {
-	q *repository.Queries
+	q    *repository.Queries
+	pool *pgxpool.Pool
 }
 
-func NewBoardRepository(q *repository.Queries) *BoardRepositoryAdapter {
-	return &BoardRepositoryAdapter{q: q}
+func NewBoardRepository(q *repository.Queries, pool *pgxpool.Pool) *BoardRepositoryAdapter {
+	return &BoardRepositoryAdapter{q: q, pool: pool}
+}
+
+func (a *BoardRepositoryAdapter) RunInTx(ctx context.Context, fn func(service.BoardRepository) error) error {
+	tx, err := a.pool.BeginTx(ctx, pgx.TxOptions{})
+	if err != nil {
+		return fmt.Errorf("begin tx: %w", err)
+	}
+	defer tx.Rollback(ctx)
+
+	txAdapter := &BoardRepositoryAdapter{q: a.q.WithTx(tx), pool: a.pool}
+	if err := fn(txAdapter); err != nil {
+		return err
+	}
+	return tx.Commit(ctx)
 }
 
 func (a *BoardRepositoryAdapter) CreateBoard(ctx context.Context, tenantID, projectID uuid.UUID, name string) (service.BoardData, error) {

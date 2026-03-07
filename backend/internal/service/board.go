@@ -64,6 +64,7 @@ type BoardRepository interface {
 	GetMaxColumnPosition(ctx context.Context, boardID, tenantID uuid.UUID) (int, error)
 	GetColumnByID(ctx context.Context, id, tenantID uuid.UUID) (ColumnData, error)
 	GetBoardsByProjectID(ctx context.Context, projectID, tenantID uuid.UUID) ([]BoardData, error)
+	RunInTx(ctx context.Context, fn func(BoardRepository) error) error
 }
 
 type BoardService struct {
@@ -200,12 +201,14 @@ func (s *BoardService) DeleteColumn(ctx context.Context, id, tenantID uuid.UUID)
 }
 
 func (s *BoardService) ReorderColumns(ctx context.Context, tenantID uuid.UUID, req model.ReorderColumnsRequest) error {
-	for i, colID := range req.ColumnIDs {
-		if err := s.repo.UpdateColumnPosition(ctx, colID, tenantID, i); err != nil {
-			return fmt.Errorf("service.ReorderColumns: %w", err)
+	return s.repo.RunInTx(ctx, func(txRepo BoardRepository) error {
+		for i, colID := range req.ColumnIDs {
+			if err := txRepo.UpdateColumnPosition(ctx, colID, tenantID, i); err != nil {
+				return fmt.Errorf("service.ReorderColumns: %w", err)
+			}
 		}
-	}
-	return nil
+		return nil
+	})
 }
 
 func (s *BoardService) GetBoardIDByColumnID(ctx context.Context, columnID, tenantID uuid.UUID) (uuid.UUID, error) {

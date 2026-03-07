@@ -43,8 +43,8 @@ func main() {
 	authRepo := adapter.NewAuthRepository(queries)
 	tenantRepo := adapter.NewTenantRepository(queries)
 	projectRepo := adapter.NewProjectRepository(queries)
-	boardRepo := adapter.NewBoardRepository(queries)
-	taskRepo := adapter.NewTaskRepository(queries)
+	boardRepo := adapter.NewBoardRepository(queries, pool)
+	taskRepo := adapter.NewTaskRepository(queries, pool)
 	dashboardRepo := adapter.NewDashboardRepository(queries)
 
 	// Services
