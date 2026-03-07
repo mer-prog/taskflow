@@ -45,7 +45,7 @@ func (h *BoardHandler) listByProject(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
 			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Message: "internal server error",
 		})
 	}
 
@@ -88,7 +88,7 @@ func (h *BoardHandler) create(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
 			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Message: "internal server error",
 		})
 	}
 
@@ -117,7 +117,7 @@ func (h *BoardHandler) get(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
 			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Message: "internal server error",
 		})
 	}
 
@@ -148,7 +148,7 @@ func (h *BoardHandler) update(c echo.Context) error {
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
 			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Message: "internal server error",
 		})
 	}
 
@@ -176,7 +176,7 @@ func (h *BoardHandler) delete(c echo.Context) error {
 	if err := h.svc.Delete(ctx, boardID, tenantID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
 			Code:    "INTERNAL_ERROR",
-			Message: err.Error(),
+			Message: "internal server error",
 		})
 	}
 

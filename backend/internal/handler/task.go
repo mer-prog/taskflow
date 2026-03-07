@@ -61,7 +61,7 @@ func (h *TaskHandler) create(c echo.Context) error {
 	resp, err := h.svc.Create(ctx, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -86,7 +86,7 @@ func (h *TaskHandler) get(c echo.Context) error {
 	resp, err := h.svc.Get(ctx, taskID, tenantID)
 	if err != nil {
 		return c.JSON(http.StatusNotFound, model.ErrorResponse{
-			Code: "NOT_FOUND", Message: err.Error(),
+			Code: "NOT_FOUND", Message: "task not found",
 		})
 	}
 
@@ -115,7 +115,7 @@ func (h *TaskHandler) update(c echo.Context) error {
 	resp, err := h.svc.Update(ctx, taskID, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -142,14 +142,14 @@ func (h *TaskHandler) delete(c echo.Context) error {
 	task, err := h.svc.Get(ctx, taskID, tenantID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 	boardID, _ := h.boardSvc.GetBoardIDByColumnID(ctx, task.ColumnID, tenantID)
 
 	if err := h.svc.Delete(ctx, taskID, tenantID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -186,7 +186,7 @@ func (h *TaskHandler) move(c echo.Context) error {
 
 	if err := h.svc.Move(ctx, tenantID, req); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -222,7 +222,7 @@ func (h *TaskHandler) addLabel(c echo.Context) error {
 
 	if err := h.svc.AddLabel(ctx, taskID, req.LabelID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -248,7 +248,7 @@ func (h *TaskHandler) removeLabel(c echo.Context) error {
 
 	if err := h.svc.RemoveLabel(ctx, taskID, labelID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -283,7 +283,7 @@ func (h *TaskHandler) addComment(c echo.Context) error {
 	resp, err := h.svc.CreateComment(ctx, tenantID, taskID, userID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -304,7 +304,7 @@ func (h *TaskHandler) getComments(c echo.Context) error {
 	resp, err := h.svc.GetComments(ctx, taskID, tenantID)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 

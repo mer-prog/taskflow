@@ -55,7 +55,7 @@ func (h *ColumnHandler) create(c echo.Context) error {
 	col, err := h.svc.CreateColumn(ctx, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -86,7 +86,7 @@ func (h *ColumnHandler) update(c echo.Context) error {
 	col, err := h.svc.UpdateColumn(ctx, colID, tenantID, req)
 	if err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -112,7 +112,7 @@ func (h *ColumnHandler) delete(c echo.Context) error {
 
 	if err := h.svc.DeleteColumn(ctx, colID, tenantID); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
@@ -143,7 +143,7 @@ func (h *ColumnHandler) reorder(c echo.Context) error {
 
 	if err := h.svc.ReorderColumns(ctx, tenantID, req); err != nil {
 		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
-			Code: "INTERNAL_ERROR", Message: err.Error(),
+			Code: "INTERNAL_ERROR", Message: "internal server error",
 		})
 	}
 
