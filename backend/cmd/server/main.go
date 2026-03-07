@@ -67,7 +67,7 @@ func main() {
 	taskHandler := handler.NewTaskHandler(taskSvc, boardSvc, hubManager)
 	labelHandler := handler.NewLabelHandler(taskSvc)
 	dashboardHandler := handler.NewDashboardHandler(dashboardSvc)
-	wsHandler := handler.NewWSHandler(hubManager, cfg)
+	wsHandler := handler.NewWSHandler(hubManager, cfg, tenantSvc)
 
 	e := echo.New()
 	e.HideBanner = true

@@ -12,6 +12,7 @@ export function useWebSocket(boardId: string | null) {
   const wsRef = useRef<WebSocket | null>(null);
   const backoffRef = useRef(1000);
   const mountedRef = useRef(true);
+  const connectRef = useRef<() => void>();
   const handleWSMessage = useBoardStore((s) => s.handleWSMessage);
   const userId = useAuthStore((s) => s.user?.id);
 
@@ -21,7 +22,8 @@ export function useWebSocket(boardId: string | null) {
     const token = getAccessToken();
     if (!token) return;
 
-    const ws = new WebSocket(`${WS_URL}?board_id=${boardId}&token=${token}`);
+    // Pass token via Sec-WebSocket-Protocol to avoid URL exposure
+    const ws = new WebSocket(`${WS_URL}?board_id=${boardId}`, [`access_token.${token}`]);
     wsRef.current = ws;
 
     ws.onopen = () => {
@@ -31,7 +33,6 @@ export function useWebSocket(boardId: string | null) {
     ws.onmessage = (event) => {
       try {
         const msg = JSON.parse(event.data);
-        // Skip own events
         if (msg.user_id === userId) return;
         const payload = typeof msg.payload === "string" ? JSON.parse(msg.payload) : msg.payload;
         handleWSMessage({ type: msg.type, payload, user_id: msg.user_id });
@@ -45,7 +46,7 @@ export function useWebSocket(boardId: string | null) {
       const delay = backoffRef.current;
       backoffRef.current = Math.min(delay * 2, MAX_BACKOFF);
       setTimeout(() => {
-        if (mountedRef.current) connect();
+        if (mountedRef.current) connectRef.current?.();
       }, delay);
     };
 
@@ -53,6 +54,9 @@ export function useWebSocket(boardId: string | null) {
       ws.close();
     };
   }, [boardId, handleWSMessage, userId]);
+
+  // Keep ref in sync to avoid stale closure in setTimeout
+  connectRef.current = connect;
 
   useEffect(() => {
     mountedRef.current = true;
