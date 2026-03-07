@@ -48,6 +48,18 @@ func (h *TaskHandler) create(c echo.Context) error {
 		})
 	}
 
+	if len(req.Title) > 500 {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Code: "BAD_REQUEST", Message: "title must be 500 characters or less",
+		})
+	}
+
+	if len(req.Description) > 10000 {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Code: "BAD_REQUEST", Message: "description must be 10000 characters or less",
+		})
+	}
+
 	if req.ColumnID == uuid.Nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Code: "BAD_REQUEST", Message: "column_id is required",
@@ -108,6 +120,18 @@ func (h *TaskHandler) update(c echo.Context) error {
 	if err := c.Bind(&req); err != nil {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Code: "BAD_REQUEST", Message: "invalid request body",
+		})
+	}
+
+	if req.Title != nil && len(*req.Title) > 500 {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Code: "BAD_REQUEST", Message: "title must be 500 characters or less",
+		})
+	}
+
+	if req.Description != nil && len(*req.Description) > 10000 {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Code: "BAD_REQUEST", Message: "description must be 10000 characters or less",
 		})
 	}
 
@@ -273,6 +297,12 @@ func (h *TaskHandler) addComment(c echo.Context) error {
 	if req.Content == "" {
 		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
 			Code: "BAD_REQUEST", Message: "content is required",
+		})
+	}
+
+	if len(req.Content) > 5000 {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Code: "BAD_REQUEST", Message: "content must be 5000 characters or less",
 		})
 	}
 
