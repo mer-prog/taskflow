@@ -15,7 +15,7 @@ import {
   type DragOverEvent,
 } from "@dnd-kit/core";
 import { SortableContext, horizontalListSortingStrategy } from "@dnd-kit/sortable";
-import { useBoardStore, type Task } from "@/stores/boardStore";
+import { useBoardStore } from "@/stores/boardStore";
 import { KanbanColumn } from "./KanbanColumn";
 import { TaskCard } from "./TaskCard";
 import { AddColumnButton } from "./AddColumnButton";
