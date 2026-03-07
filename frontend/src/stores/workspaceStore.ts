@@ -75,7 +75,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
     try {
       const data = await apiFetch<Tenant>(`/tenants/${tenantId}`);
       set({ tenant: data, isLoading: false });
-    } catch {
+    } catch (e) {
+      console.error("fetchTenant failed:", e);
       set({ isLoading: false });
     }
   },
@@ -94,7 +95,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
         tenantId: getTenantId(),
       });
       set({ projects: data || [] });
-    } catch {
+    } catch (e) {
+      console.error("fetchProjects failed:", e);
       set({ projects: [] });
     }
   },
@@ -128,7 +130,8 @@ export const useWorkspaceStore = create<WorkspaceState>((set) => ({
         members: data || [],
         currentUserRole: currentMember?.role || null,
       });
-    } catch {
+    } catch (e) {
+      console.error("fetchMembers failed:", e);
       set({ members: [], currentUserRole: null });
     }
   },

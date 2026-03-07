@@ -126,7 +126,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         })),
         isLoading: false,
       });
-    } catch {
+    } catch (e) {
+      console.error("fetchBoard failed:", e);
       set({ isLoading: false });
     }
   },
@@ -142,7 +143,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
       } else {
         set({ boardId: null, boardName: "", columns: [], isLoading: false });
       }
-    } catch {
+    } catch (e) {
+      console.error("fetchBoardByProject failed:", e);
       set({ isLoading: false });
     }
   },
@@ -340,8 +342,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         tenantId: getTenantId(),
       });
       set({ selectedTask: task });
-    } catch {
-      // ignore
+    } catch (e) {
+      console.error("fetchTaskDetail failed:", e);
     }
   },
 
@@ -351,7 +353,8 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         tenantId: getTenantId(),
       });
       set({ comments: comments || [] });
-    } catch {
+    } catch (e) {
+      console.error("fetchComments failed:", e);
       set({ comments: [] });
     }
   },
