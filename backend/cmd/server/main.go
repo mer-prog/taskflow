@@ -104,6 +104,7 @@ func main() {
 
 	projects := scoped.Group("/projects")
 	projectHandler.Register(projects)
+	boardHandler.RegisterProjectRoutes(projects)
 
 	boards := scoped.Group("/boards")
 	boardHandler.Register(boards)

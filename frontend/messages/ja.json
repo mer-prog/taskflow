@@ -71,6 +71,7 @@
     "priorityMedium": "中",
     "priorityHigh": "高",
     "priorityCritical": "緊急",
+    "priorityUrgent": "至急",
     "dueDate": "期限",
     "addTask": "タスクを追加",
     "addColumn": "カラムを追加",

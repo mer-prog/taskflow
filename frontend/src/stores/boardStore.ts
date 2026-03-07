@@ -77,6 +77,7 @@ interface BoardState {
   comments: Comment[];
 
   fetchBoard: (boardId: string) => Promise<void>;
+  fetchBoardByProject: (projectId: string) => Promise<void>;
   setActiveTask: (task: Task | null) => void;
   moveTask: (
     taskId: string,
@@ -125,6 +126,22 @@ export const useBoardStore = create<BoardState>((set, get) => ({
         })),
         isLoading: false,
       });
+    } catch {
+      set({ isLoading: false });
+    }
+  },
+
+  fetchBoardByProject: async (projectId) => {
+    set({ isLoading: true });
+    try {
+      const boards = await apiFetch<{ id: string }[]>(`/projects/${projectId}/boards`, {
+        tenantId: getTenantId(),
+      });
+      if (boards.length > 0) {
+        await get().fetchBoard(boards[0].id);
+      } else {
+        set({ boardId: null, boardName: "", columns: [], isLoading: false });
+      }
     } catch {
       set({ isLoading: false });
     }

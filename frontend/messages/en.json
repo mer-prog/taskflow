@@ -71,6 +71,7 @@
     "priorityMedium": "Medium",
     "priorityHigh": "High",
     "priorityCritical": "Critical",
+    "priorityUrgent": "Urgent",
     "dueDate": "Due date",
     "addTask": "Add task",
     "addColumn": "Add column",

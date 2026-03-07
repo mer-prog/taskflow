@@ -61,6 +61,21 @@ func (a *BoardRepositoryAdapter) DeleteBoard(ctx context.Context, id, tenantID u
 	})
 }
 
+func (a *BoardRepositoryAdapter) GetBoardsByProjectID(ctx context.Context, projectID, tenantID uuid.UUID) ([]service.BoardData, error) {
+	rows, err := a.q.GetBoardsByProjectID(ctx, repository.GetBoardsByProjectIDParams{
+		ProjectID: toPgUUID(projectID),
+		TenantID:  toPgUUID(tenantID),
+	})
+	if err != nil {
+		return nil, err
+	}
+	result := make([]service.BoardData, len(rows))
+	for i, b := range rows {
+		result[i] = toBoardData(b)
+	}
+	return result, nil
+}
+
 func (a *BoardRepositoryAdapter) GetColumnsByBoardID(ctx context.Context, boardID, tenantID uuid.UUID) ([]service.ColumnData, error) {
 	cols, err := a.q.GetColumnsByBoardID(ctx, repository.GetColumnsByBoardIDParams{
 		BoardID:  toPgUUID(boardID),

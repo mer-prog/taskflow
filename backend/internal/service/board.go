@@ -63,6 +63,7 @@ type BoardRepository interface {
 	UpdateColumnPosition(ctx context.Context, id, tenantID uuid.UUID, position int) error
 	GetMaxColumnPosition(ctx context.Context, boardID, tenantID uuid.UUID) (int, error)
 	GetColumnByID(ctx context.Context, id, tenantID uuid.UUID) (ColumnData, error)
+	GetBoardsByProjectID(ctx context.Context, projectID, tenantID uuid.UUID) ([]BoardData, error)
 }
 
 type BoardService struct {
@@ -79,6 +80,14 @@ func (s *BoardService) Create(ctx context.Context, tenantID uuid.UUID, req model
 		return nil, fmt.Errorf("service.BoardCreate: %w", err)
 	}
 	return &b, nil
+}
+
+func (s *BoardService) ListByProject(ctx context.Context, projectID, tenantID uuid.UUID) ([]BoardData, error) {
+	boards, err := s.repo.GetBoardsByProjectID(ctx, projectID, tenantID)
+	if err != nil {
+		return nil, fmt.Errorf("service.ListByProject: %w", err)
+	}
+	return boards, nil
 }
 
 func (s *BoardService) Get(ctx context.Context, id, tenantID uuid.UUID) (*model.BoardDetailResponse, error) {

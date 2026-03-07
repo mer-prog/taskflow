@@ -10,14 +10,14 @@ import { KanbanBoard } from "@/components/board/KanbanBoard";
 export default function BoardPage() {
   const t = useTranslations("common");
   const params = useParams();
-  const boardId = params?.id as string;
-  const { fetchBoard, isLoading, boardName } = useBoardStore();
+  const projectId = params?.id as string;
+  const { fetchBoardByProject, isLoading, boardName, boardId } = useBoardStore();
 
   useEffect(() => {
-    if (boardId) fetchBoard(boardId);
-  }, [boardId, fetchBoard]);
+    if (projectId) fetchBoardByProject(projectId);
+  }, [projectId, fetchBoardByProject]);
 
-  useWebSocket(boardId);
+  useWebSocket(boardId || "");
 
   if (isLoading) {
     return (

@@ -25,6 +25,44 @@ func (h *BoardHandler) Register(g *echo.Group) {
 	g.DELETE("/:id", h.delete)
 }
 
+func (h *BoardHandler) RegisterProjectRoutes(g *echo.Group) {
+	g.GET("/:id/boards", h.listByProject)
+}
+
+func (h *BoardHandler) listByProject(c echo.Context) error {
+	projectID, err := uuid.Parse(c.Param("id"))
+	if err != nil {
+		return c.JSON(http.StatusBadRequest, model.ErrorResponse{
+			Code:    "BAD_REQUEST",
+			Message: "invalid project id",
+		})
+	}
+
+	tenantID := middleware.GetTenantID(c)
+	ctx := c.Request().Context()
+
+	boards, err := h.svc.ListByProject(ctx, projectID, tenantID)
+	if err != nil {
+		return c.JSON(http.StatusInternalServerError, model.ErrorResponse{
+			Code:    "INTERNAL_ERROR",
+			Message: err.Error(),
+		})
+	}
+
+	result := make([]map[string]interface{}, len(boards))
+	for i, b := range boards {
+		result[i] = map[string]interface{}{
+			"id":         b.ID,
+			"project_id": b.ProjectID,
+			"name":       b.Name,
+			"created_at": b.CreatedAt,
+			"updated_at": b.UpdatedAt,
+		}
+	}
+
+	return c.JSON(http.StatusOK, result)
+}
+
 func (h *BoardHandler) create(c echo.Context) error {
 	var req model.CreateBoardRequest
 	if err := c.Bind(&req); err != nil {
